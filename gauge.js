@@ -56,6 +56,9 @@ function degtorad(degree) {
 function renderGauge (x,y,axisText,btnText,size) {
   canvas.width = 1*size;
   canvas.height = 1*size;
+  
+  var reading = 512;
+  
   //set background color 
   ctx.fillStyle = '#346473';
   ctx.fillRect(x,y,1*size,1*size);
@@ -64,17 +67,17 @@ function renderGauge (x,y,axisText,btnText,size) {
   ctx.beginPath();
   ctx.strokeStyle = '#9bd546';
   ctx.lineWidth = 1;
-  ctx.arc(x+(0.5*size),y+(0.5*size),(0.4*size),degtorad(150),degtorad(30));
+  ctx.arc(x+(0.5*size),y+(0.5*size),(0.4*size),degtorad(145),degtorad(35));
   ctx.stroke();
   
   //progress bar
   ctx.beginPath();
   ctx.lineWidth = 0.06*size;
-  ctx.arc(x+(0.5*size),y+(0.5*size),(0.37*size),degtorad(150),degtorad(270)); //instead of 270 the reading of sensor
+  ctx.arc(x+(0.5*size),y+(0.5*size),(0.37*size),degtorad(145),degtorad(145 + reading*0.244140625)); //instead of 270 the reading of sensor
   ctx.stroke();
   
   //percentage label
-  var percentage = 69;
+  var percentage = reading / 1024 * 100;
   var percentText = percentage.toString() + "%";
   ctx.font= (0.144*size).toString() + "px Nexa Light";
   ctx.fillStyle = "#FFFFFF"
@@ -99,4 +102,4 @@ function renderGauge (x,y,axisText,btnText,size) {
   
 }
 
-renderGauge(0,0,"Moisture","POUR WATER",500);
+setInterval(renderGauge(0,0,"Moisture","POUR WATER",500),40);
