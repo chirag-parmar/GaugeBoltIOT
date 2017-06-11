@@ -57,7 +57,11 @@ function renderGauge (x,y,axisText,btnText,size) {
   canvas.width = 1*size;
   canvas.height = 1*size;
   
-  var reading = 512;
+  if(typeof moisture_level == "undefined"){
+    var reading = 512;}
+  else {
+    var reading = moisture_level
+  }
   
   //set background color 
   ctx.fillStyle = '#346473';
