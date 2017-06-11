@@ -41,12 +41,7 @@ body.appendChild(canvas);
 //get the context variable
 var ctx = canvas.getContext('2d');
 
-ctx.canvas.addEventListener("mouseclick", function(event){
-  var mouseX = event.clientX;
-  var mouseY = event.clientY;
-  
-  
-})
+ctx.canvas.addEventListener("click", onClick, false);
 
 function degtorad(degree) {
   var factor = Math.PI/180;
@@ -58,7 +53,7 @@ function renderGauge (x,y,axisText,btnText,size) {
   canvas.height = 1*size;
   
   if(typeof moisture_level == "undefined"){
-    var reading = 512;}
+    var reading = 0;}
   else {
     var reading = moisture_level
   }
@@ -106,4 +101,20 @@ function renderGauge (x,y,axisText,btnText,size) {
   
 }
 
+function onClick(e) {
+  var x = e.pageX;
+  var y = e.pageY;
+  var size = canvas.width
+  x = x/size;
+  y = y/size;
+  
+  if (x>0.15 && x<0.85 && y>0.8 && y<0.94){
+    alert("hello");
+    //document.Write("hello");
+    //setKey('{{ApiKey}}','{{Name}}'); 
+    //setDebug(False); 
+    //digitalWrite(0, HIGH); 
+    //setInterval(digitalWrite(0, LOW),5000)             
+  }
+ }
 setInterval(renderGauge(0,0,"Moisture","POUR WATER",500),40);
