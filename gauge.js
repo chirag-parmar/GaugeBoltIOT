@@ -170,7 +170,7 @@ function AnalogRead(pin, sensortype) {
           }
         }
     };
-    xmlhttp.open("GET","http://beta.boltiot.com/remote/"+api_key+"/analogRead?pin="+pin+"&deviceName="+d_name,true);
+    xmlhttp.open("GET","http://cloud.boltiot.com/remote/"+api_key+"/analogRead?pin="+pin+"&deviceName="+d_name,true);
     xmlhttp.send();
 }
 
@@ -186,7 +186,7 @@ function DigitalWrite(pin,state) {
           }
         
     };
-    xmlhttp.open("GET","http://beta.boltiot.com/remote/" + api_key + "/digitalWrite?pin=" + pin + "&state=" + state + "&deviceName=" + d_name,true);
+    xmlhttp.open("GET","http://cloud.boltiot.com/remote/" + api_key + "/digitalWrite?pin=" + pin + "&state=" + state + "&deviceName=" + d_name,true);
     xmlhttp.send();
 }
 
