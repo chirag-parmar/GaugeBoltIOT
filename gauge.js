@@ -1,5 +1,7 @@
-var api_key = "19eb0377-6eee-470d-a011-a6adbe3a11fc "
-var d_name = "BOLT10734941"
+//window.onload = setInterval(AnalogRead('A0','Moisture'),2000)
+
+var api_key = "19eb0377-6eee-470d-a011-a6adbe3a11fc"
+var d_name = "BOLT10779429"
 
 CanvasRenderingContext2D.prototype.roundRect = 
  
@@ -34,10 +36,14 @@ var xmlhttp = new XMLHttpRequest();
 //get the body element and set background color
 var body = document.getElementsByTagName("body")[0];
 document.body.style.backgroundColor = "#346473";
+while (body.firstChild) {
+    body.removeChild(body.firstChild);
+}
 
+function setup(cno,size,x=0,y=0){
+  
 
-function setup(cno,x,y,size){
-  //creating a canvas element for the html page
+//creating a canvas element for the html page
   var canvas = document.createElement('canvas');
   canvas.id = "canvas" + cno.toString();
   canvas.width = size;
@@ -62,21 +68,21 @@ function setup(cno,x,y,size){
     if (x>0.15 && x<0.85 && y>0.8 && y<0.94){
       switch(canvas.id){
           case "canvas1": 
-              alert("hello1");
-              //digitalWrite(0, HIGH); 
-              //setInterval(digitalWrite(0, LOW),5000) 
+              console.log("recorded button1 press")
+              DigitalWrite("0", "HIGH"); 
+              setTimeout(function() {
+                DigitalWrite("0", "LOW");},5000); 
               break;
           case "canvas2":
-              alert("hello2")
-              //setDebug(False); 
-              //digitalWrite(0, HIGH); 
-              //setInterval(digitalWrite(0, LOW),5000) 
+              console.log("recorded button2 press")
+              DigitalWrite("1", "HIGH"); 
+              setTimeout(function() {
+                DigitalWrite("1", "LOW");},5000); 
               break;
       }    
     }
     
 });
-  return ctx;
 }
 
 function degtorad(degree) {
@@ -85,11 +91,15 @@ function degtorad(degree) {
 }
 
 function renderGauge (cno,axisText,btnText,size,reading,x=0,y=0) {
-  
-  var ctx = setup(cno,x,y,size);
-  
+
+  var canvas = document.getElementById("canvas" + cno.toString())
+  var ctx = canvas.getContext('2d');
+
   if(typeof reading == "undefined"){
     reading = 0;
+  }
+  else{
+    
   }
   
   //set background color 
@@ -110,7 +120,7 @@ function renderGauge (cno,axisText,btnText,size,reading,x=0,y=0) {
   ctx.stroke();
   
   //percentage label
-  var percentage = reading / 1024 * 100;
+  var percentage = Math.round(reading / 1024 * 100);
   var percentText = percentage.toString() + "%";
   ctx.font= (0.144*size).toString() + "px Nexa Light";
   ctx.fillStyle = "#FFFFFF";
@@ -139,27 +149,55 @@ function renderGauge (cno,axisText,btnText,size,reading,x=0,y=0) {
   
 }
 
-function AnalogRead(pin) {
+function AnalogRead(pin, sensortype) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
-        //document.getElementById(element_id).innerHTML = xmlhttp.responseText;
+        console.log(xmlhttp.status)
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            alert(xmlhttp.responseText);
-            //document.getElementById("javascript_response").innerHTML = "Javascript Response : "+xmlhttp.responseText;
-            var obj = JSON.parse(xmlhttp.responseText);
-            if(obj.success == "1") {
-              return obj.value;
+          var obj = JSON.parse(xmlhttp.responseText);
+          console.log(obj.success);
+          if(obj.success == "1") {
+            if (sensortype == "Moisture"){
+              renderGauge(1,sensortype,"POUR WATER",500,parseInt(obj.value));
             }
-            else {
-              return 512;
+            else if(sensortype == "Luminosity"){
+              renderGauge(2,sensortype,"SHINE LIGHT",500,parseInt(obj.value));
             }
+          }
+          else{
+          renderGauge(1,"Moisture","POUR WATER",500,0);
+          renderGauge(2,"Luminosity","SHINE LIGHT",500,0);
+          }
         }
     };
     xmlhttp.open("GET","http://beta.boltiot.com/remote/"+api_key+"/analogRead?pin="+pin+"&deviceName="+d_name,true);
     xmlhttp.send();
 }
 
-setInterval(renderGauge(1,"Moisture","POUR WATER",500,moisture_level = AnalogRead("A0")),500);
-setInterval(renderGauge(2,"Luminosity","SHINE LIGHT",500,moisture_level = AnalogRead("A0")),500);
+function DigitalWrite(pin,state) {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+        console.log(xmlhttp.responseText.length)
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            var obj = JSON.parse(xmlhttp.responseText);
+            if(obj.success == "1") {
+              console.log("GPIO state change succesfull") 
+            }
+          }
+        
+    };
+    xmlhttp.open("GET","http://beta.boltiot.com/remote/" + api_key + "/digitalWrite?pin=" + pin + "&state=" + state + "&deviceName=" + d_name,true);
+    xmlhttp.send();
+}
 
+function onloadWindow(){
+  setup(1,500);
+  setup(2,500);
+  renderGauge(1,'Moisture',"POUR WATER",500,0);
+  renderGauge(2,'Luminosity',"SHINE LIGHT",500,0);
+  setInterval(function(){ 
+      AnalogRead('A0','Moisture');
+      AnalogRead('A0','Luminosity');
+  }, 1000);
+}
 
